@@ -93,4 +93,12 @@ public class EmployeeServiceImpl implements EmployeeService {
         return new PageResult(page.getTotal(),page.getResult());
     }
 
+    @Override
+    public void JudgeStatus(Integer status, Long id) {
+        Employee employee=new Employee();
+        employee.setStatus(status);
+        employee.setId(id);
+       employeeMapper.update(employee);
+    }
+
 }

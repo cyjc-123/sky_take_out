@@ -86,5 +86,11 @@ public class EmployeeController {
         return Result.success(employeeList);
 
     }
+   @PostMapping("/status/{status}")
+    public Result JudgeStatus( @PathVariable Integer status,Long id){
+           log.info("员工状态：{},员工id:{}",status,id);
+           employeeService.JudgeStatus(status,id);
+           return Result.success();
+    }
 
 }

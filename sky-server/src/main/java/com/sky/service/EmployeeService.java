@@ -21,4 +21,6 @@ public interface EmployeeService {
     void insert(EmployeeDTO employee);
 
     PageResult PageSelect(EmployeePageQueryDTO epqt);
+
+    void JudgeStatus(Integer status, Long id);
 }
