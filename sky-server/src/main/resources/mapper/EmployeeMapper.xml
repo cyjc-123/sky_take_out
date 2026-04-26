@@ -42,7 +42,7 @@
         select *from employee e
         <where>
             <if test="name!=null and name!=''">
-                e.name like concat('%',#{name},'%')
+               and e.name like concat('%',#{name},'%')
             </if>
             </where>
         order by create_time desc
