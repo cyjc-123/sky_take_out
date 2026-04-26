@@ -92,5 +92,17 @@ public class EmployeeController {
            employeeService.JudgeStatus(status,id);
            return Result.success();
     }
+    @GetMapping("/{id}")
+    public Result selectInfo(@PathVariable Long id){
+        log.info("根据id查询回显：{}",id);
+        Employee e=employeeService.selectInfo(id);
+        return Result.success(e);
+    }
+    @PutMapping
+    public Result update(@RequestBody EmployeeDTO employee){
+         log.info("修改员工：{}",employee);
+         employeeService.update(employee);
+         return Result.success();
+    }
 
 }

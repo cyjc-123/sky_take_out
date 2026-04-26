@@ -23,4 +23,8 @@ public interface EmployeeService {
     PageResult PageSelect(EmployeePageQueryDTO epqt);
 
     void JudgeStatus(Integer status, Long id);
+
+    Employee selectInfo(Long id);
+
+    void update(EmployeeDTO employee);
 }
