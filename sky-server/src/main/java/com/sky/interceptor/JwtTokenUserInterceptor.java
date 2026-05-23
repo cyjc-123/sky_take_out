@@ -34,7 +34,7 @@ public class JwtTokenUserInterceptor implements HandlerInterceptor {
      * @throws Exception
      */
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-        //判断当前拦截到的是Controller的方法还是其他资源
+       //判断当前拦截到的是Controller的方法还是其他资源
         if (!(handler instanceof HandlerMethod)) {
             //当前拦截到的不是动态方法，直接放行
             return true;
@@ -59,4 +59,34 @@ public class JwtTokenUserInterceptor implements HandlerInterceptor {
             return false;
         }
     }
+     /*if (!(handler instanceof HandlerMethod)) {
+        return true;
+    }
+
+    String token = request.getHeader(jwtProperties.getUserTokenName());
+
+        log.info("请求路径：{}", request.getRequestURI());
+        log.info("期望的token名称：{}", jwtProperties.getUserTokenName());
+        log.info("获取到的token：{}", token);
+        log.info("所有请求头：");
+    java.util.Enumeration<String> headerNames = request.getHeaderNames();
+        while (headerNames.hasMoreElements()) {
+        String headerName = headerNames.nextElement();
+        log.info("{}: {}", headerName, request.getHeader(headerName));
+    }
+
+        try {
+        log.info("jwt校验:{}", token);
+        Claims claims = JwtUtil.parseJWT(jwtProperties.getUserSecretKey(), token);
+        Long userId = Long.valueOf(claims.get(JwtClaimsConstant.USER_ID).toString());
+        log.info("当前用户id：{}", userId);
+        BaseContext.setCurrentId(userId);
+
+        return true;
+    } catch (Exception ex) {
+        log.error("JWT校验失败：{}", ex.getMessage());
+        response.setStatus(401);
+        return false;
+    }
+}*/
 }

@@ -40,7 +40,7 @@ public class CategoryController {
     }
     @GetMapping("/list")
     public Result selectBytype(Integer type){
-     log.info("根据分类查询：{}",type);
+     log.info("根据类型查询分类：{}",type);
          List<Category> category=categoryService.selectBytype(type);
          return Result.success(category);
     }

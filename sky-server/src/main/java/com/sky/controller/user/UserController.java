@@ -44,4 +44,28 @@ public class UserController {
 
         return Result.success(userLoginVO);
     }
+        /*log.info("用户登录：{}",userLoginDTO);
+        User user=userService.wxlogin(userLoginDTO);
+
+        if (user == null) {
+            log.error("微信登录失败，用户不存在");
+            return Result.error("登录失败");
+        }
+
+        Map<String, Object> claims=new HashMap<>();
+        claims.put(JwtClaimsConstant.USER_ID,user.getId());
+        String token = JwtUtil.createJWT(jwtProperties.getUserSecretKey(), jwtProperties.getUserTtl(), claims);
+
+        log.info("生成的token：{}", token);
+
+        UserLoginVO userLoginVO = UserLoginVO.builder()
+                .id(user.getId())
+                .openid(user.getOpenid())
+                .token(token)
+                .build();
+
+        log.info("登录成功，返回数据：{}", userLoginVO);
+
+        return Result.success(userLoginVO);
+    }*/
 }

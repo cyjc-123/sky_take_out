@@ -24,7 +24,7 @@ public interface CategoryMapper {
         " VALUES (#{type}, #{name}, #{sort}, #{createTime}, #{updateTime}, #{createUser}, #{updateUser})")
     void insert(Category category);
 
-@Select("select * from category where type=#{type}")
+
     List<Category> selectByType(Integer type);
 
 @Delete("delete from category where id=#{id}")
