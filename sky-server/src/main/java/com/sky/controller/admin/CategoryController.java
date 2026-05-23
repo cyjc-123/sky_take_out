@@ -27,7 +27,7 @@ public class CategoryController {
         return Result.success(pageResult);
    }
     @PostMapping("/status/{status}")
-    public Result JudgeStatus(@PathVariable Integer status, Long id){
+    public Result JudgeStatus(@PathVariable Integer status,@RequestParam Long id){
         log.info("员工状态：{},员工id:{}",status,id);
         categoryService.JudgeStatus(status,id);
         return Result.success();
