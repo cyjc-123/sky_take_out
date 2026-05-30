@@ -17,8 +17,8 @@ public interface ShoppingCartMapper {
     @Update("update shopping_cart set number=#{number} where id=#{id}")
     void updateNumber(ShoppingCart shoppingCart);
 
-    @Delete("delete from shopping_cart ")
-    void deleteAll();
+    @Delete("delete from shopping_cart where user_id=#{userId}")
+    void deleteAllByuserId(Long userId);
   @Delete("delete from shopping_cart where id=#{id}")
     void deleteById(Long id);
 }
