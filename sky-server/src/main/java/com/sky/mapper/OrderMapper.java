@@ -25,4 +25,7 @@ public interface OrderMapper {
     @Update("update orders set status = #{orderStatus},pay_status = #{orderPaidStatus} ,checkout_time = #{checkOutTime} " +
             "where number = #{orderNumber}")
  void updateStatus(Integer orderStatus, Integer orderPaidStatus, LocalDateTime checkOutTime, String orderNumber);
+
+    @Select("select * from orders where id=#{id}")
+    Orders selectByorderId(Long id);
 }
