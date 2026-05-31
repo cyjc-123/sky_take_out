@@ -1,8 +1,10 @@
 package com.sky.service.impl;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import com.sky.WebSocker.WebSocketServer;
 import com.sky.constant.MessageConstant;
 import com.sky.context.BaseContext;
 import com.sky.dto.*;
@@ -25,7 +27,9 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -46,6 +50,9 @@ public class OrderServiceImpl implements OrderService {
     private ShoppingCartMapper shoppingCartMapper;
     @Autowired
     private HistoryOrdersMapper historyOrdersMapper;
+    @Autowired
+    private WebSocketServer webSocketServer;
+
     @Override
     @Transactional
     public OrderSubmitVO order(OrdersSubmitDTO ordersSubmitDTO) {
@@ -134,7 +141,16 @@ public class OrderServiceImpl implements OrderService {
 
         log.info("调用updateStatus，用于替换微信支付更新数据库状态的问题");
         orderMapper.updateStatus(OrderStatus, OrderPaidStatus, check_out_time, orderNumber);
-            return vo;
+
+        log.info("来单提醒");
+        Map map=new HashMap<>();
+        Orders orders = orderMapper.getByNumber(orderNumber);
+        map.put("type",1);
+        map.put("orderId",orders.getId());
+        map.put("content","订单号"+orderNumber);
+        String jsonString = JSON.toJSONString(map);
+        webSocketServer.sendToAllClient(jsonString);
+        return vo;
     }
 
     /**
