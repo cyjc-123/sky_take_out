@@ -1,0 +1,11 @@
+package com.sky.service;
+
+import com.sky.dto.DataOverViewQueryDTO;
+import com.sky.vo.TurnoverReportVO;
+
+import java.time.LocalDate;
+
+public interface ReportService {
+    TurnoverReportVO turnoverStatistics(LocalDate begin, LocalDate end);
+
+}
