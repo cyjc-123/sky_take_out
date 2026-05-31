@@ -1,8 +1,11 @@
 package com.sky.service.impl;
 
 import com.alibaba.fastjson.JSONObject;
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
 import com.sky.constant.MessageConstant;
 import com.sky.context.BaseContext;
+import com.sky.dto.OrdersPageQueryDTO;
 import com.sky.dto.OrdersPaymentDTO;
 import com.sky.dto.OrdersSubmitDTO;
 import com.sky.entity.*;
@@ -11,8 +14,10 @@ import com.sky.exception.BaseException;
 import com.sky.exception.OrderBusinessException;
 import com.sky.exception.ShoppingCartBusinessException;
 import com.sky.mapper.*;
+import com.sky.result.PageResult;
 import com.sky.service.OrderService;
 import com.sky.utils.WeChatPayUtil;
+import com.sky.vo.DishVO;
 import com.sky.vo.OrderPaymentVO;
 import com.sky.vo.OrderSubmitVO;
 import com.sky.vo.OrderVO;
@@ -26,6 +31,8 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+
 @Slf4j
 @Service
 public class OrderServiceImpl implements OrderService {
@@ -42,6 +49,8 @@ public class OrderServiceImpl implements OrderService {
     private AddressBookMapper addressBookMapper;
     @Autowired
     private ShoppingCartMapper shoppingCartMapper;
+    @Autowired
+    private HistoryOrdersMapper historyOrdersMapper;
     @Override
     @Transactional
     public OrderSubmitVO order(OrdersSubmitDTO ordersSubmitDTO) {
@@ -208,6 +217,35 @@ public class OrderServiceImpl implements OrderService {
             shoppingCartList.add(shoppingCart);
         }
         shoppingCartMapper.insertBatch(shoppingCartList);
+
+    }
+
+    @Override
+    public PageResult conditionSearch(OrdersPageQueryDTO ordersPageQueryDTO) {
+        PageHelper.startPage(ordersPageQueryDTO.getPage(),ordersPageQueryDTO.getPageSize());
+        List<Orders> list=historyOrdersMapper.selectPage(ordersPageQueryDTO);
+        Page<Orders>page= (Page<Orders>) list;
+
+        List<OrderVO> orderVOList=new ArrayList<>();
+        if (page!=null&&page.getTotal()>0){
+            for (Orders orders : page) {
+                Long ordersId = orders.getId();
+                List<OrderDetail> orderDetailList = orderDetailMapper.selectByOrderId(ordersId);
+                OrderVO orderVO = new OrderVO();
+                BeanUtils.copyProperties(orders,orderVO);
+
+                List<String> collect = orderDetailList.stream().map(orderDetail -> {
+                    String s = orderDetail.getName() + "×" + orderDetail.getNumber();
+                    return s;
+
+                }).collect(Collectors.toList());
+                String join = String.join(",", collect);
+
+                orderVO.setOrderDishes(join);
+                orderVOList.add(orderVO);
+            }
+        }
+         return new PageResult(page.getTotal(),orderVOList);
 
     }
 
