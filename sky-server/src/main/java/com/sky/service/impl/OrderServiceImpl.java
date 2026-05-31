@@ -5,9 +5,7 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.sky.constant.MessageConstant;
 import com.sky.context.BaseContext;
-import com.sky.dto.OrdersPageQueryDTO;
-import com.sky.dto.OrdersPaymentDTO;
-import com.sky.dto.OrdersSubmitDTO;
+import com.sky.dto.*;
 import com.sky.entity.*;
 import com.sky.exception.AddressBookBusinessException;
 import com.sky.exception.BaseException;
@@ -17,10 +15,7 @@ import com.sky.mapper.*;
 import com.sky.result.PageResult;
 import com.sky.service.OrderService;
 import com.sky.utils.WeChatPayUtil;
-import com.sky.vo.DishVO;
-import com.sky.vo.OrderPaymentVO;
-import com.sky.vo.OrderSubmitVO;
-import com.sky.vo.OrderVO;
+import com.sky.vo.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -247,6 +242,94 @@ public class OrderServiceImpl implements OrderService {
         }
          return new PageResult(page.getTotal(),orderVOList);
 
+    }
+
+    @Override
+    public OrderStatisticsVO statistics() {
+        Integer toBeConfirmed=orderMapper.countStatus(Orders.TO_BE_CONFIRMED);
+        Integer confirmed = orderMapper.countStatus(Orders.CONFIRMED);
+        Integer deliveryInProgress = orderMapper.countStatus(Orders.DELIVERY_IN_PROGRESS);
+        OrderStatisticsVO orderStatisticsVO = new OrderStatisticsVO();
+        orderStatisticsVO.setToBeConfirmed(toBeConfirmed);
+        orderStatisticsVO.setConfirmed(confirmed);
+        orderStatisticsVO.setDeliveryInProgress(deliveryInProgress);
+        return orderStatisticsVO;
+
+    }
+
+    @Override
+    public void confirm(OrdersConfirmDTO ordersConfirmDTO) {
+        Orders orders = new Orders();
+        BeanUtils.copyProperties(ordersConfirmDTO,orders);
+        orders.setStatus(Orders.CONFIRMED);
+        if (orders.getStatus() == null) {
+            throw new BaseException(MessageConstant.ORDER_STATUS_ERROR);
+        }
+
+        orderMapper.update(orders);
+    }
+
+    @Override
+    public void rejection(OrdersRejectionDTO ordersRejectionDTO) {
+        Orders orders = orderMapper.selectByorderId(ordersRejectionDTO.getId());
+        if(orders==null||orders.getStatus()!=Orders.TO_BE_CONFIRMED){
+            throw new BaseException(MessageConstant.ORDER_STATUS_ERROR);
+        }
+        /*//支付状态
+        Integer payStatus = ordersDB.getPayStatus();
+        if (payStatus == Orders.PAID) {
+            //用户已支付，需要退款
+            String refund = weChatPayUtil.refund(
+                    ordersDB.getNumber(),
+                    ordersDB.getNumber(),
+                    new BigDecimal(0.01),
+                    new BigDecimal(0.01));
+            log.info("申请退款：{}", refund);
+        }*/
+        Orders build = Orders.builder()
+                .id(ordersRejectionDTO.getId())
+                .rejectionReason(ordersRejectionDTO.getRejectionReason())
+                .status(Orders.CANCELLED)
+                .cancelTime(LocalDateTime.now())
+                .build();
+        orderMapper.update(build);
+    }
+
+    @Override
+    public void cancelByadmin(OrdersCancelDTO ordersCancelDTO) {
+        /*Orders ordersDB = orderMapper.selectByorderId(ordersCancelDTO.getId());
+        //支付状态
+        Integer payStatus = ordersDB.getPayStatus();
+        if (payStatus == 1) {
+            //用户已支付，需要退款
+            String refund = weChatPayUtil.refund(
+                    ordersDB.getNumber(),
+                    ordersDB.getNumber(),
+                    new BigDecimal(0.01),
+                    new BigDecimal(0.01));
+            log.info("申请退款：{}", refund);
+        }*/
+        Orders build = Orders.builder()
+                .id(ordersCancelDTO.getId())
+                .cancelTime(LocalDateTime.now())
+                .cancelReason(ordersCancelDTO.getCancelReason())
+                .status(Orders.CANCELLED)
+                .build();
+        orderMapper.update(build);
+    }
+
+    @Override
+    public void delivery(Long id) {
+        Orders orders = orderMapper.selectByorderId(id);
+        orders.setStatus(Orders.DELIVERY_IN_PROGRESS);
+        orderMapper.update(orders);
+    }
+
+    @Override
+    public void complete(Long id) {
+        Orders orders = orderMapper.selectByorderId(id);
+        orders.setStatus(Orders.COMPLETED);
+        orderMapper.update(orders);
     }
 
 
